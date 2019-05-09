@@ -5,7 +5,7 @@ const db = require('./data/db')
 
 const server = express();
 
-const { find } = db;
+const { find, findById } = db;
 
 server.get('/', (req, res) => {
   console.log('inside get');
@@ -28,6 +28,23 @@ server.get('/api/users', (req, res) => {
     })
     .catch((err) => {
       res.status(500).send(err);
+    })
+});
+
+server.get('/api/users/:id', (req, res) => {
+  const { id } = req.params;
+
+  findById(id)
+    .then((user) => {
+      if (user) {
+        res.status(200).json(user);
+      } else {
+        res.status(404)
+          .json({ message: "The user with the specified ID does not exist." });
+      }
+    })
+    .catch((err) => {
+      res.status(404).json(err);
     })
 });
 
