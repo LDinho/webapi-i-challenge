@@ -7,7 +7,7 @@ const server = express();
 
 server.use(express.json());
 
-const { find, findById, insert } = db;
+const { find, findById, insert, remove } = db;
 
 server.get('/', (req, res) => {
   console.log('inside get');
@@ -45,8 +45,8 @@ server.get('/api/users/:id', (req, res) => {
           .json({ message: "The user with the specified ID does not exist." });
       }
     })
-    .catch((err) => {
-      res.status(404).json(err);
+    .catch(() => {
+      res.status(500).json({ error: "The user information could not be retrieved." });
     })
 });
 
@@ -68,6 +68,23 @@ server.post('/api/users', (req, res) => {
     .catch(() => {
       res.status(500)
         .json({ error: "There was an error while saving the user to the database" });
+    })
+});
+
+server.delete('/api/users/:id', (req, res) => {
+  const { id } = req.params;
+
+  remove(id)
+    .then((user) => {
+      if (user) {
+        res.status(200).json(user);
+      } else {
+        res.status(404)
+          .json({ message: "The user with the specified ID does not exist." });
+      }
+    })
+    .catch(() => {
+      res.status(500).json({ error: "The user could not be removed" });
     })
 });
 
