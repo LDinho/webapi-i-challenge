@@ -7,7 +7,7 @@ const server = express();
 
 server.use(express.json());
 
-const { find, findById, insert, remove } = db;
+const { find, findById, insert, remove, update } = db;
 
 server.get('/', (req, res) => {
   console.log('inside get');
@@ -58,7 +58,7 @@ server.post('/api/users', (req, res) => {
 
   if (!name || !bio) {
     return res.status(400)
-      .json({ errorMessage: "Please provide name and bio for the user." });
+      .json({ errorMessage: "Please provide name and bio for the user."   });
   }
 
   insert(newUser)
@@ -85,6 +85,31 @@ server.delete('/api/users/:id', (req, res) => {
     })
     .catch(() => {
       res.status(500).json({ error: "The user could not be removed" });
+    })
+});
+
+server.put('/api/users/:id', (req, res) => {
+  const { id } = req.params;
+  const updatedUser = req.body;
+
+  const { name, bio } = updatedUser;
+
+  if (!name || !bio) {
+    return res.status(400)
+      .json({ errorMessage: "Please provide name and bio for the user."   });
+  }
+
+  update(id, updatedUser )
+    .then((user) => {
+      if (user) {
+        res.status(200).json(user);
+      } else {
+        res.status(404)
+          .json({ message: "The user with the specified ID does not exist." });
+      }
+    })
+    .catch(() => {
+      res.status(500).json({ error: "The user information could not be modified." });
     })
 });
 
