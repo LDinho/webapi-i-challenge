@@ -5,7 +5,9 @@ const db = require('./data/db')
 
 const server = express();
 
-const { find, findById } = db;
+server.use(express.json());
+
+const { find, findById, insert } = db;
 
 server.get('/', (req, res) => {
   console.log('inside get');
@@ -45,6 +47,27 @@ server.get('/api/users/:id', (req, res) => {
     })
     .catch((err) => {
       res.status(404).json(err);
+    })
+});
+
+server.post('/api/users', (req, res) => {
+  const newUser = req.body;
+  console.log('req body', req.body);
+
+  const { name, bio} = newUser;
+
+  if (!name || !bio) {
+    return res.status(400)
+      .json({ errorMessage: "Please provide name and bio for the user." });
+  }
+
+  insert(newUser)
+    .then((newUser) => {
+        res.status(201).json(newUser);
+    })
+    .catch(() => {
+      res.status(500)
+        .json({ error: "There was an error while saving the user to the database" });
     })
 });
 
